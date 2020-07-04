@@ -3,6 +3,7 @@
 from distutils.core import setup
 from setuptools import find_packages
 
+
 setup(
     name="amptorch",
     version="0.1",
