@@ -66,7 +66,7 @@ def compute_query(images_to_calculate, parent_calc):
     return queried_images
 
 
-def termination_criteria(termination_args, method="iter"):
+def termination_criteria(termination_args, method="iter",convergence_func = None):
     """Criteria for AL termination
     Parameters
     ----------
@@ -76,13 +76,18 @@ def termination_criteria(termination_args, method="iter"):
         args: (current iteration, # of iterations)
     """
     terminate = False
-    f_max = 0
     if method == "iter":
+        calc = copy.copy(termination_args["calc"])
+        ind = int(len(termination_args["images"])/2)-1
+        saddle_pt_image = termination_args["images"][ind]
         current_i = termination_args["current_i"]
         total_i = termination_args["total_i"]
         if current_i > total_i:
             terminate = True
-        criteria = 0
+        if convergence_func == 'neb_convergence':
+            criteria = neb_convergence(calc,saddle_pt_image)
+        else:
+            criteria = 0
 
     if method == "final":
         calc = copy.copy(termination_args["calc"])
@@ -106,7 +111,14 @@ def termination_criteria(termination_args, method="iter"):
 
         terminate = e_terminate and f_terminate
         criteria = np.abs(ml_energy-parent_energy)/len(final_image)
+    
     return [terminate,criteria]
+
+def neb_convergence(calc,saddle_pt,etol = 0.01):
+    ml_energy = saddle_pt.get_potential_energy(apply_constraint=False)
+    parent_energy = calc.get_potential_energy(saddle_pt)
+    criteria = np.abs(ml_energy-parent_energy)
+    return criteria
 
 # Query strategy built specifically for NEBs, includes inbuilt termination conditions
 def neb_query(termination_args, method="neb_iter"):
