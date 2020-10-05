@@ -55,13 +55,14 @@ class AtomisticActiveLearner:
 
     implemented_properties = ["energy", "forces"]
 
-    def __init__(self, training_data, training_params, parent_calc, ensemble=False):
+    def __init__(self, training_data, training_params, parent_calc, convergence_func, ensemble=False):
         self.training_data = copy.deepcopy(training_data)
         self.training_params = training_params
         self.parent_calc = CounterCalc(parent_calc,'parent_learner')
         self.ensemble = ensemble
         self.parent_calls = 0
         self.iteration = 0
+        self.convergence_func = convergence_func
 
         if ensemble:
             assert isinstance(ensemble, int) and ensemble > 1, "Invalid ensemble!"
@@ -121,8 +122,10 @@ class AtomisticActiveLearner:
                 termination_args = {
                     "current_i": self.iteration,
                     "total_i": al_convergence["num_iterations"],
+                    "images": sample_candidates,
+                    "calc": self.parent_calc
                 }
-                terminate_list = termination_criteria(method=method, termination_args=termination_args)
+                terminate_list = termination_criteria(method=method, termination_args=termination_args,convergence_func = self.convergence_func)
                 terminate = terminate_list[0]
                 convergence_criteria_list.append(terminate_list[1])
 
@@ -164,9 +167,9 @@ class AtomisticActiveLearner:
           print('Terminating! Total number of iterations reached')
         else:
           print('Terminating! Convergence criteria has been met')
-
-        if method != "iter":
-          self.convergence_plot(convergence_criteria_list)
+          
+        self.convergence_plot(convergence_criteria_list)
+        print(convergence_criteria_list)
         return trained_calc,self.iteration
 
     def add_data(self, queried_images):
