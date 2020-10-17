@@ -69,6 +69,9 @@ class AtomisticActiveLearner:
             self.training_data, self.parent_dataset = bootstrap_ensemble(
                 self.training_data, n_ensembles=ensemble
             )
+
+            # make initial fingerprints - daemonic processes cannot do this
+            make_fps(training_data, training_params["Gs"])
         else:
             self.parent_dataset = self.training_data
 
