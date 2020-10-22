@@ -86,6 +86,7 @@ def termination_criteria(termination_args, method="iter",convergence_func = None
         e_tol = termination_args["energy_tol"]
         if current_i > total_i:
             terminate = True
+            criteria = neb_convergence(calc,saddle_pt_image)
         elif convergence_func == 'neb_convergence':
             criteria = neb_convergence(calc,saddle_pt_image)
             if convergence_check == True:
