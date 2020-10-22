@@ -78,16 +78,24 @@ def termination_criteria(termination_args, method="iter",convergence_func = None
     terminate = False
     if method == "iter":
         calc = copy.copy(termination_args["calc"])
+        convergence_check = termination_args["convergence_check"]
         ind = int(len(termination_args["images"])/2)-1
         saddle_pt_image = termination_args["images"][ind]
         current_i = termination_args["current_i"]
         total_i = termination_args["total_i"]
+        e_tol = termination_args["energy_tol"]
         if current_i > total_i:
             terminate = True
         if convergence_func == 'neb_convergence':
             criteria = neb_convergence(calc,saddle_pt_image)
+            if convergence_check == True:
+                if criteria < etol:
+                    terminate = True
+                else:
+                    terminate = False
         else:
             criteria = 0
+        
 
     if method == "final":
         calc = copy.copy(termination_args["calc"])
@@ -103,7 +111,7 @@ def termination_criteria(termination_args, method="iter",convergence_func = None
 
         e_terminate = False
         f_terminate = False
-
+        
         if np.abs(ml_energy-parent_energy)/len(final_image) <= e_tol:
             e_terminate = True
         if np.sum(np.abs(ml_forces-parent_forces))/(3*len(final_image)) <= f_tol:
