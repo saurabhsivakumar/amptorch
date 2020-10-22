@@ -89,7 +89,7 @@ def termination_criteria(termination_args, method="iter",convergence_func = None
         elif convergence_func == 'neb_convergence':
             criteria = neb_convergence(calc,saddle_pt_image)
             if convergence_check == True:
-                if criteria < etol:
+                if criteria < e_tol:
                     terminate = True
                 else:
                     terminate = False
