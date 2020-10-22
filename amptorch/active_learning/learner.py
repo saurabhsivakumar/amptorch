@@ -127,7 +127,9 @@ class AtomisticActiveLearner:
                     "current_i": self.iteration,
                     "total_i": al_convergence["num_iterations"],
                     "images": sample_candidates,
-                    "calc": self.parent_calc
+                    "calc": self.parent_calc,
+                    "energy_tol": al_convergence["energy_tol"],
+                    "convergence_check": al_convergence["convergence_check"]
                 }
                 terminate_list = termination_criteria(method=method, termination_args=termination_args,convergence_func = self.convergence_func)
                 terminate = terminate_list[0]
