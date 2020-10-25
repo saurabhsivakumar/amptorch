@@ -134,6 +134,8 @@ class AtomisticActiveLearner:
                 terminate_list = termination_criteria(method=method, termination_args=termination_args,convergence_func = self.convergence_func)
                 terminate = terminate_list[0]
                 convergence_criteria_list.append(terminate_list[1])
+                if al_convergence["convergence_check"] == True:
+                    self.parent_calls += 1                    
 
             elif method == "final":
                 termination_args = {
