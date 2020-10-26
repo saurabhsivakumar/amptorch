@@ -76,6 +76,7 @@ def termination_criteria(termination_args, method="iter",convergence_func = None
         args: (current iteration, # of iterations)
     """
     terminate = False
+    dft_queried_image = []
     if method == "iter":
         calc = copy.copy(termination_args["calc"])
         convergence_check = termination_args["convergence_check"]
@@ -88,7 +89,7 @@ def termination_criteria(termination_args, method="iter",convergence_func = None
             terminate = True
             criteria = neb_convergence(calc,saddle_pt_image)
         elif convergence_func == 'neb_convergence':
-            criteria = neb_convergence(calc,saddle_pt_image)
+            criteria,dft_queried_image = neb_convergence(calc,saddle_pt_image)
             if convergence_check == True:
                 if criteria < e_tol:
                     terminate = True
@@ -121,13 +122,19 @@ def termination_criteria(termination_args, method="iter",convergence_func = None
         terminate = e_terminate and f_terminate
         criteria = np.abs(ml_energy-parent_energy)/len(final_image)
     
-    return [terminate,criteria]
+    return [terminate,criteria,dft_queried_image]
 
 def neb_convergence(calc,saddle_pt,etol = 0.01):
+    queried_image = []
     ml_energy = saddle_pt.get_potential_energy(apply_constraint=False)
-    parent_energy = calc.get_potential_energy(saddle_pt)
+    image = saddle_pt.copy()
+    image.set_calculator(copy.copy(calc))
+    parent_energy = image.get_potential_energy(apply_constraint=False)
+    parent_forces = image.get_forces(apply_constraint=False)
+    image.set_calculator(sp(atoms=image, energy=parent_energy, forces=parent_forces))
+    queried_image.append(image)
     criteria = np.abs(ml_energy-parent_energy)
-    return criteria
+    return criteria,queried_image
 
 # Query strategy built specifically for NEBs, includes inbuilt termination conditions
 def neb_query(termination_args, method="neb_iter"):
