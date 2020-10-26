@@ -149,6 +149,8 @@ class AtomisticActiveLearner:
                 terminate = terminate_list[0]
                 convergence = terminate_list[1]
                 convergence_criteria_list.append(convergence)
+                tested_image = terminate_list[2]
+                self.parent_dataset, self.training_data = self.add_data(tested_image)
 
             elif method == "neb_iter":
                 termination_args = {
